@@ -20,21 +20,21 @@ class Post(TimestampedModel):
     photo = models.ImageField(upload_to="blog/post/%Y/%m/%d")
     content = models.TextField()
     tag_set = models.ManyToManyField("Tag", blank=True)
-    category_set = models.OneToOneField("Category", on_delete=models.CASCADE)
+    category_set = models.ForeignKey("Category", on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.caption
+        return self.title
 
-    # def extract_tag_list(self):
-    #     tag_name_list = re.findall(r"#([a-zA-Z\dㄱ-힣]+)", self.caption)
-    #     tag_list = []
-    #     for tag_name in tag_name_list:
-    #         tag, _ = Tag.objects.get_or_create(name=tag_name)
-    #         tag_list.append(tag)
-    #     return tag_list
+    def extract_tag_list(self):
+        tag_name_list = re.findall(r"#([a-zA-Z\dㄱ-힣]+)", self.content)
+        tag_list = []
+        for tag_name in tag_name_list:
+            tag, _ = Tag.objects.get_or_create(name=tag_name)
+            tag_list.append(tag)
+        return tag_list
 
     def get_absolute_url(self):
-        return reverse("instagram:post_detail", args=[self.pk])
+        return reverse("blog:post_detail", args=[self.pk])
 
     def is_like_user(self, user):
         return self.like_user_set.filter(pk=user.pk).exists()
